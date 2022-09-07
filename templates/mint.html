@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>GreenGreet | NFT Minting</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/fontawesome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/templatemo-cyborg-gaming.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/owl.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/animate.css') }}">
+    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+
+    <script src='https://unpkg.com/xrpl@2.1.0-beta.1'></script>
+    <script>
+        if (typeof module !== "undefined") var xrpl = require('xrpl')
+
+        async function mintToken(ipfsUrl) {
+            console.log(ipfsUrl);
+            const wallet = xrpl.Wallet.fromSeed(localStorage.getItem('secret'));
+            const client = new xrpl.Client("wss://xls20-sandbox.rippletest.net:51233");
+            await client.connect();
+            console.log("Connected to Sandbox");
+
+            let transferrable_flag = 8 // future decision => flags.checked ? 8 : 1;
+            if (transferrable_flag == 8) {
+                console.log("Transferrable flag is checked")
+                const transactionBlob = {
+                    TransactionType: "NFTokenMint",
+                    Account: wallet.classicAddress,
+                    URI: xrpl.convertStringToHex(ipfsUrl),
+                    Flags: transferrable_flag, // 1 or 8
+                    TokenTaxon: 0,
+                    TransferFee: 0.0, // only valid if flags = 8
+                }
+
+                const tx = await client.submitAndWait(transactionBlob, {
+                    wallet
+                })
+
+                const nfts = await client.request({
+                    method: "account_nfts",
+                    account: wallet.classicAddress
+                })
+                console.log(nfts)
+                console.log("Transaction result:", tx.result.meta.TransactionResult)
+                console.log("Balance changes:",
+                    JSON.stringify(xrpl.getBalanceChanges(tx.result.meta), null, 2))
+                client.disconnect()
+
+            } else {
+                console.log("Transferrable flag is unchecked")
+                const transactionBlob = {
+                    TransactionType: "NFTokenMint",
+                    Account: wallet.classicAddress,
+                    URI: xrpl.convertStringToHex(tokenUrl.value),
+                    Flags: transferrable_flag,
+                    TokenTaxon: 0,
+                }
+                const tx = await client.submitAndWait(transactionBlob, {
+                    wallet
+                })
+
+                const nfts = await client.request({
+                    method: "account_nfts",
+                    account: wallet.classicAddress
+                })
+                console.log(nfts)
+                console.log("Transaction result:", tx.result.meta.TransactionResult)
+                console.log("Balance changes:",
+                    JSON.stringify(xrpl.getBalanceChanges(tx.result.meta), null, 2))
+                client.disconnect()
+            }
+            let fullUrl = "https://nft-devnet.xrpl.org/accounts/" + wallet.classicAddress
+            console.log("NFT token is minted and available at: " + fullUrl)
+            localStorage.setItem('mintednftURL', ipfsUrl);
+            // redirect to /nft/:address
+            window.location.href = "/minted-nft/" + wallet.classicAddress;
+            // document.getElementById("description").innerHTML = "Check the transaction here: <br>\n\n<a href=" + fullUrl + " target='_blank'>Transaction</a>";
+            // document.getElementById("mint").innerHTML = "SUCCESS! ";
+            // document.getElementById("mint").style.backgroundColor = "#00ff00";
+            // document.getElementById("description").style.visibility = "visible";
+        }
+    </script>
+
+    <style>
+      .minting-inputs{
+        width: 100%;
+        background-color: transparent;
+        border: none;
+        border-bottom: 1px solid #fff;
+        color: #fff;
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      .minting-inputs:focus{
+        outline: none;
+        border-bottom: aqua 1px solid;
+        -webkit-box-shadow:0px 0px 20px 1px rgba(45,255,196,0.9);
+        -moz-box-shadow: 0px 0px 20px 1px rgba(45,255,196,0.9);
+        box-shadow: 0px 0px 20px 1px rgba(45,255,196,0.9);
+      }
+      .txtarea:focus-visible{
+        border: aqua 3px solid;
+        color: #fff;
+        -webkit-box-shadow:0px 0px 20px 1px rgba(45,255,196,0.9);
+        -moz-box-shadow: 0px 0px 20px 1px rgba(45,255,196,0.9);
+        box-shadow: 0px 0px 20px 1px #2dffc4e6;
+      }
+      .txtarea{
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+        border: 1px solid #fff;
+        color: rgba(255, 255, 255, 0.347);
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      label{
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: bold;
+        padding: 0.5rem;
+      }
+
+      #submit{
+        width: 100%;
+        background-color: #fff;
+        color: #000;
+        border: 3px solid #fff;
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        margin-top: 0.5rem;
+        -webkit-box-shadow:0px 0px 20px 1px rgba(0, 0, 0, 0.9);
+        -moz-box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.9);
+        box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.9);
+      }
+      #submit:hover{
+        background-color: rgb(255, 255, 255, 0.1);
+        color: rgb(255, 255, 255);
+        border: 3px solid #000;
+      }
+      input[type="file"] {
+        color: aqua;
+      }
+      .page-title{
+        color: #33cb9a;
+      }
+    </style>
+
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="/" class="logo">
+                        <img src="{{ url_for('static', filename='assets/images/logo.png') }}" alt="">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Search End ***** -->
+                    <div class="search-input">
+                      <form id="search" action="#">
+                        <input type="text" placeholder="Type Something" id='searchText' name="searchKeyword"/>
+                        <i class="fa fa-search"></i>
+                      </form>
+                    </div>
+                    <!-- ***** Search End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                      <li><a href="/">Browse</a></li>
+                      <li><a href="/mint" class="active">Mint</a></li>
+                      <li><a href="/connect">Change Wallet</a></li>
+                      <li><a href="/profile/{{account}}">{{account[:10] + '...'}}<img src="{{ url_for('static', filename='assets/images/profile-header.jpg') }}" alt=""></a></li>
+                    </ul>    
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content">
+
+          <!-- ***** Details Start ***** -->
+          <div class="game-details">
+            <div class="row">
+              <div class="col-lg-12">
+                <h2 class="page-title">Create your green project</h2>
+              </div>
+              <div class="col-lg-12">
+                <div class="content">
+                    <div class="form">
+                      <form action="#" enctype="multipart/form-data">
+                        <div class="fields">
+                          <label for="projectname"> ✒️ Project Name:</label>
+                          <input id="projectname" class="minting-inputs" type="text" placeholder="Beach Cleanup"  name="projectname" />
+                        </div>
+                        <div class="fields">
+                          <label for="summary"> 📜 One Sentece Summary: </label>
+                          <input id="summary" class="minting-inputs" type="text" placeholder="Helping save the beaches with cleanup kits and volunteering."  name="summary"/>
+                        </div>
+                        <div class="fields">
+                          <label for="pdesc"> 📗 Project Description: </label>
+                          <textarea class="txtarea" name="pdesc" id="pdesc" cols="30" rows="10" spellcheck="false" style="height: 442px;"></textarea>
+                        </div>
+                        <div class="fields">
+                          <label for="about"> 🌳 About you: </label>
+                          <textarea class="txtarea" name="about" id="about" cols="30" rows="10"></textarea>
+                        </div>
+                        <div class="fields">
+                          <label for="funding"> 💲 Funding Goal: (XRP) </label>
+                          <input id="fundamount" class="minting-inputs" type="number" placeholder="150"  name="fundamount"/>
+                        </div>
+
+                        <!-- TODO: Category tags -->
+
+                        <div class="fields">
+                          <label for="files"> 📷 Project Pictures:</label>
+                          <!-- allow multiple .jpg or .png image files to be uploaded-->
+                          <input type="file" name="files" id="files" multiple>
+                        </div>
+
+                        <!-- Submit button -->
+                        <div class="fields">
+                          <input id="submit" type="button" value="Submit" class="btn btn-primary">
+                        </div>
+                      </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ***** Details End ***** -->
+
+          <!-- ***** Other Start ***** -->
+          <div class="other-games">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="heading-section">
+                  <h4><em>Other Related</em> Projects</h4>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="item">
+                  <img src="{{ url_for('static', filename='assets/images/game-01.jpg') }}" alt="" class="templatemo-item">
+                  <h4>Tree</h4><span>Ipsum</span>
+                  <ul>
+                    <li><i class="fa fa-leaf" style="color: green;"></i> 1000 pts</li>
+                    <li><i class="fa fa-dollar" style="color: #33cb9a;"></i> 1000 XRP</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="item">
+                  <img src="{{ url_for('static', filename='assets/images/game-02.jpg') }}" alt="" class="templatemo-item">
+                  <h4>Beach</h4><span>Ipsum</span>
+                  <ul>
+                    <li><i class="fa fa-leaf" style="color: green;"></i> 1000 pts</li>
+                    <li><i class="fa fa-dollar" style="color: #33cb9a;"></i> 1000 XRP</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="item">
+                  <img src="{{ url_for('static', filename='assets/images/game-03.jpg') }}" alt="" class="templatemo-item">
+                  <h4>Birdum</h4><span>Birdipsum</span>
+                  <ul>
+                    <li><i class="fa fa-leaf" style="color: green;"></i> 1000 pts</li>
+                    <li><i class="fa fa-dollar" style="color: #33cb9a;"></i> 1000 XRP</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="item">
+                  <img src="{{ url_for('static', filename='assets/images/game-02.jpg') }}" alt="" class="templatemo-item">
+                  <h4>Scout</h4><span>Ipsum</span>
+                  <ul>
+                    <li><i class="fa fa-leaf" style="color: green;"></i> 1000 pts</li>
+                    <li><i class="fa fa-dollar" style="color: #33cb9a;"></i> 1000 XRP</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="item">
+                  <img src="{{ url_for('static', filename='assets/images/game-03.jpg') }}" alt="" class="templatemo-item">
+                  <h4>Charity</h4><span>Ipsum</span>
+                  <ul>
+                    <li><i class="fa fa-leaf" style="color: green;"></i> 1000 pts</li>
+                    <li><i class="fa fa-dollar" style="color: #33cb9a;"></i> 1000 XRP</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="item">
+                  <img src="{{ url_for('static', filename='assets/images/game-01.jpg') }}" alt="" class="templatemo-item">
+                  <h4>Ice</h4><span>Ipsum</span>
+                  <ul>
+                    <li><i class="fa fa-leaf" style="color: green;"></i> 1000 pts</li>
+                    <li><i class="fa fa-dollar" style="color: #33cb9a;"></i> 1000 XRP</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p>Copyright © 2036 <a href="#">Cyborg Gaming</a> Company. All rights reserved. 
+          
+          <br>Design: <a href="https://templatemo.com" target="_blank" title="free CSS templates">TemplateMo</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Scripts -->
+  
+  <!-- Bootstrap core JavaScript -->
+  <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/owl-carousel.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/tabs.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/popup.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/custom.js') }}"></script>
+  <script>
+      function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+              var cookies = document.cookie.split(';');
+              for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+                }
+              }
+            }
+            return cookieValue;
+      }
+    $(document).ready(function() {
+        localStorage.setItem('secret', getCookie('secret'));
+        localStorage.setItem('acc', getCookie('acc'));
+        localStorage.setItem('sequece', getCookie('sequence'));
+        // set textarea pdesc value to this text
+        $('#pdesc').val('✨ Inspiration for Building the Project ✨\n\nThe inspiration for this project came from a desire to help keep our beaches clean and safe for everyone to enjoy. We know that many people love to visit the beach, but we also know that there are a lot of people who do not clean up after themselves. This leaves the beaches dirty and unsafe for others. We want to help change that by providing a way for people to easily and efficiently clean up the beaches.\n\n🎯 How the Project Will Be Executed 🎯\n\nThis project will be executed by providing beach cleanup kits to volunteers who want to help clean up the beaches. The kits will include everything that is needed to safely and effectively clean up the beaches, including gloves, garbage bags, and pickers. The kits will be distributed to volunteers who sign up to help with the project.\n\n🙏 Who Will This Project Help? 🙏\n\nThis project will help to keep the beaches clean and safe for everyone to enjoy. It will also help to educate people on the importance of keeping the beaches clean.\n\n💸 How the Money Will Be Spent 💸\n\nThe money for this project will be spent on buying the beach cleanup kits, as well as on marketing and advertising the project.\n\n📅 Project Specifics 📅\n\nThe project will be happening from Oct. 11th to Oct. 16th (2022) at Ripple Beach, Florida.\n\n🔄 Where to Follow Updates Regarding the Project 🔄\n\nUpdates regarding the project can be found on our website (https://example.com), as well as on our social media pages (Instagram: @example, Twitter @example, Facebook @example)');
+        $('#about').val('I am an environmentalist, and I have always been passionate about keeping our beaches clean. I have experience with organizing beach cleanups, and I have the necessary skills to execute this project. I am also passionate about educating people on the importance of keeping beaches clean. I believe that this project will make a difference in the way people treat the beaches, and I am excited to be a part of it.')
+    });
+
+    // on click the input id 'submit'
+    $('#submit').click(function() {
+      // Disable the submit button
+      $('#submit').attr('disabled', 'disabled');
+      $('#submit').val('Uploading it to IPFS...');
+
+      var files = $('#files').prop('files');
+      var formData = new FormData();
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        formData.append('files[]', file, file.name);
+      }
+
+      // append the data from the input fields to the form data object
+      formData.append('projectname', $('#projectname').val());
+      formData.append('summary', $('#summary').val());
+      formData.append('pdesc', $('#pdesc').val());
+      formData.append('about', $('#about').val());
+      formData.append('fundamount', $('#fundamount').val());
+
+      // send the form data object
+      $.ajax({
+        type: 'POST',
+        url: '/mint',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+          $('#submit').val('Minting to the XRPL network...');
+          mintToken(data.url);
+        }
+      });
+    });
+  </script>
+
+  </body>
+
+</html>

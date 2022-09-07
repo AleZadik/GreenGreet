@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>GreenGreet | NFT List</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="static/assets/css/fontawesome.css">
+    <link rel="stylesheet" href="static/assets/css/templatemo-cyborg-gaming.css">
+    <link rel="stylesheet" href="static/assets/css/owl.css">
+    <link rel="stylesheet" href="static/assets/css/animate.css">
+    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+
+    <style>
+      .most-popular .item ul{
+        float: none;
+        margin: 0;
+      }
+      /* css for <!-- 5 category buttons next to each other --> */
+      .category-buttons{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin: 0 0 1rem 0;
+      }
+      .category-buttons button{
+        width: 20%;
+        background-color: #fff;
+        color: #000;
+        border: 3px solid #fff;
+        border-radius: 20px;
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        margin: 1rem;
+      }
+      .category-buttons button:hover{
+        background-color: rgb(255, 255, 255, 0.1);
+        color: rgb(255, 255, 255);
+        border: 3px solid #000;
+      }
+      .category-buttons button:focus{
+        outline: none;
+      }
+
+      .item:hover{
+        background-color: rgba(0, 0, 0, 0.5);
+        color: aqua;
+        -webkit-box-shadow:0px 0px 20px 1px rgba(45,255,196,0.9);
+        -moz-box-shadow: 0px 0px 20px 1px rgba(45,255,196,0.9);
+        box-shadow: 0px 0px 20px 1px rgba(45,255,196,0.9);
+      }
+      .item:hover .nft-title{
+        color: aqua;
+      }
+      .item:hover .nft-subtitle:hover{
+        color: aqua;
+        text-decoration: underline;
+      }
+
+      
+    </style>
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="/" class="logo">
+                        <img src="static/assets/images/logo.png" alt="">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Search End ***** -->
+                    <div class="search-input">
+                      <form id="search" action="#">
+                        <input disabled type="text" placeholder="Type Something" id='searchText' name="searchKeyword" onkeypress="handle" />
+                        <i class="fa fa-info"></i>
+                      </form>
+                    </div>
+                    <!-- ***** Search End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                      <li><a href="/" class="active">Browse</a></li>
+                      <li><a href="/mint">Mint</a></li>
+                      <li><a href="/connect">Change Wallet</a></li>
+                      <li><a href="/profile/{{account}}"><span id='connected'></span><img src="{{ url_for('static', filename='assets/images/profile-header.jpg') }}" alt=""></a></li>
+                    </ul>    
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content">
+          
+          <!-- ***** Most Popular Start ***** -->
+          <h1>NFT list</h1>
+          <div class="most-popular">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="heading-section">
+                  <h4><em>Green Projects</em> Available</h4>
+                  <!-- 5 category buttons next to each other -->
+                  <div class="category-buttons">
+                    <button id="all" onclick="filterSelection('all')">All</button>
+                    <button id="sus" onclick="filterSelection('sus')">Sustainability</button>
+                    <button id="social" onclick="filterSelection('social')">Social Good</button>
+                    <button id="edu" onclick="filterSelection('edu')">Education</button>
+                    <button id="green" onclick="filterSelection('green')">Green</button>
+                  </div>
+                </div>
+                <div class="row" id="project-list">
+                <!-- NFT Project component -->
+                  <div class="nftwrappers col-lg-3 col-sm-6" style="display: none;">
+                    <div class="item">
+                      <img class='nft-image' src="static/assets/images/popular-01.jpg" alt="">
+                      <h4 class='nft-title'>TitleTitleTitleTitle <br> <a class='profile-href' href='#'><span class='nft-subtitle'>Subtitle</span></a></h4>
+                      <ul>
+                        <li class="nft-goal"><i class="fa fa-bullseye" style="color: red;"></i> 1000 XRP</li>
+                        <li class="nft-current"><i class="fa fa-check" style="color: green;"></i> 750 XRP</li>
+                      </ul>
+                    </div>
+                  </div>
+                <!-- NFT Project component -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ***** Most Popular End ***** -->
+
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p>Copyright © 2036 <a href="#">Cyborg Gaming</a> Company. All rights reserved. 
+          
+          <br>Design: <a href="https://templatemo.com" target="_blank" title="free CSS templates">TemplateMo</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="static/vendor/jquery/jquery.min.js"></script>
+  <script src="static/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+  <script src="static/assets/js/owl-carousel.js"></script>
+  <script src="staticassets/js/tabs.js"></script>
+  <script src="static/assets/js/popup.js"></script>
+  <script src="static/assets/js/custom.js"></script>
+
+  <script>
+    function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = jQuery.trim(cookies[i]);
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) == (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    function returnNFTlist(){
+      // Get NFT list from server and then call populateData
+      $.ajax({
+        url: 'list-nfts',
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+          console.log(data);
+          populateData(data);
+        },
+        error: function (data) {
+          console.log('Error:', data);
+        }
+      });
+    }
+
+    function populateData(nfts){
+      // Populate NFT list
+      // for each nft in nfts
+      // Get the first element with class 'nftwrappers'
+      let nftwrappers = document.getElementsByClassName("nftwrappers")[0];
+      // make a copy of the first element edit the data and then append it to '#project-list'
+      nfts.forEach(nft => {
+        let project_copy = nftwrappers.cloneNode(true);
+        let anchor = document.createElement("a");
+        anchor.href = "/details/" + nft.address + "/" + nft.uri;
+
+        // get the class 'item' and put it inside the anchor
+        let item = project_copy.getElementsByClassName("item")[0];
+        anchor.appendChild(item);
+        // remove project_copy children and add anchor to it
+        // style display block for project_copy
+        project_copy.style.display = "block";
+        project_copy.innerHTML = "";
+        project_copy.appendChild(anchor);
+
+        project_copy.getElementsByClassName("nft-image")[0].src = nft.img ? nft.img : "static/assets/images/popular-02.jpg";
+        project_copy.getElementsByClassName("nft-title")[0].innerHTML = nft.title + "<br><a class='profile-href' href='#'><span class='nft-subtitle'>Subtitle</span></a>";
+        // change .profile-href href to /profile/<nft.owner>
+        project_copy.getElementsByClassName("profile-href")[0].href = "/profile/" + nft.address;
+        // strip nft.address to only 10 chars and add ... at the end
+        project_copy.getElementsByClassName("nft-subtitle")[0].innerText = nft.address.substring(0, 10) + "...";
+        project_copy.getElementsByClassName("nft-goal")[0].innerHTML = "<i class='fa fa-bullseye' style='color: red;'></i> " + nft.goal +" XRP";
+        project_copy.getElementsByClassName("nft-current")[0].innerHTML = "<i class='fa fa-check' style='color: green;'></i> " + nft.raised +" XRP";
+
+        document.getElementById("project-list").appendChild(project_copy);
+      });
+      // remove nftwrappers[0] from the document
+      nftwrappers.remove();
+    }
+
+    $(document).ready(function() {
+      var acc = getCookie("acc");
+      if (acc != "") {
+        // trim to 10 chars + ...
+        if (acc.length > 10) {
+          acc = acc.substring(0, 10) + "...";
+        }
+        document.getElementById("connected").innerText = acc;
+        returnNFTlist();
+      }
+    });
+  </script>
+  </body>
+
+</html>

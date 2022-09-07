@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>GreenGreet | Profile Details</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+
+
+    <!-- Additional CSS Files -->
+    <link href="{{ url_for('static', filename='assets/css/fontawesome.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/css/templatemo-cyborg-gaming.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/css/owl.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/css/animate.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/css/owl.css') }}" rel="stylesheet">
+    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+
+    <style>
+      .main-profile ul{
+        -webkit-box-shadow:0px 0px 60px 1px rgba(45,255,196,0.9);
+        -moz-box-shadow: 0px 0px 60px 1px rgba(45,255,196,0.9);
+        box-shadow: 0px 0px 60px 1px rgba(45,255,196,0.9);
+      }
+    </style>
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="/" class="logo">
+                        <img src="{{ url_for('static', filename='assets/images/logo.png') }}" alt="">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Search End ***** -->
+                    <div class="search-input">
+                      <form id="search" action="#">
+                        <input type="text" placeholder="Type Something" id='searchText' name="searchKeyword" onkeypress="handle" />
+                        <i class="fa fa-search"></i>
+                      </form>
+                    </div>
+                    <!-- ***** Search End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                        <li><a href="/">Browse</a></li>
+                        <li><a href="/mint">Mint</a></li>
+                        <li><a href="/connect">Change Wallet</a></li>
+                        <li><a href="/profile/{{account}}" class="active">{{account}} <img src="{{ url_for('static', filename='assets/images/profile-header.jpg') }}" alt=""></a></li>
+                    </ul>   
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content">
+
+          <!-- ***** Banner Start ***** -->
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="main-profile ">
+                <div class="row">
+                  <div class="col-lg-4">
+                    <img src="{{ url_for('static', filename='assets/images/profile.jpg') }}" alt="" style="border-radius: 23px;">
+                  </div>
+                  <div class="col-lg-4 align-self-center">
+                    <div class="main-info header-text">
+                      <span style="background-color: green;">1500 pts</span>
+                      <h6 id="xrpaddr">{{account}}</h6>
+                      <p>...................................................................................................</p>
+                      <p>...................................................................................................</p>
+                      <p>...................................................................................................</p>
+                      <p>...................................................................................................</p>
+                      <p>...................................................................................................</p>
+                      <p>...................................................................................................</p>
+                      <p>...................................................................................................</p>
+
+                      <div class="main-border-button">
+                        <a href="#">Check Account Data</a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 align-self-center">
+                    <ul>
+                      <li>Project NFTs <span>4</span></li>
+                      <li>Successfull Contributions <span>16</span></li>
+                      <li>Pending Contributions <span>4</span></li>
+                      <li>Total Contributed <span>1000 XRP</span></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="clips">
+                      <div class="row">
+                        <div class="col-lg-12">
+                          <div class="heading-section">
+                            <h4>Project NFTs <em>Acquired</em></h4>
+                          </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6">
+                          <div class="item">
+                            <div class="thumb">
+                              <img src="{{ url_for('static', filename='assets/images/beach-cleanup-1.png') }}" alt="" style="border-radius: 23px;">
+                            </div>
+                            <div class="down-content">
+                              <h4>May Beach Cleanup</h4>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6">
+                          <div class="item">
+                            <div class="thumb">
+                              <img src="{{ url_for('static', filename='assets/images/beach-cleanup-2.png') }}" alt="" style="border-radius: 23px;">
+                            </div>
+                            <div class="down-content">
+                              <h4>July Beach Cleanup</h4>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6">
+                          <div class="item">
+                            <div class="thumb">
+                              <img src="{{ url_for('static', filename='assets/images/beach-cleanup-3.png') }}" alt="" style="border-radius: 23px;">
+                            </div>
+                            <div class="down-content">
+                              <h4>Sept. Beach Cleanup</h4>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6">
+                          <div class="item">
+                            <div class="thumb">
+                              <img src="{{ url_for('static', filename='assets/images/beach-cleanup-4.png') }}" alt="" style="border-radius: 23px;">
+                            </div>
+                            <div class="down-content">
+                              <h4>Dec Beach Cleanup</h4>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ***** Banner End ***** -->
+
+          <!-- ***** Gaming Library Start ***** -->
+          <div class="gaming-library profile-library">
+            <div class="col-lg-12">
+              <div class="heading-section">
+                <h4><em>Your</em> Contributions</h4>
+              </div>
+              <div class="item">
+                <ul>
+                  <li><img src="{{ url_for('static', filename='assets/images/game-01.jpg') }}" alt="" class="templatemo-item"></li>
+                  <li><h4>Save the Trees</h4><span>...</span></li>
+                  <li><h4>Date Added</h4><span>24/08/2036</span></li>
+                  <li><h4>Total Contributed</h4><span>634 XRP</span></li>
+                  <li><h4>Points Earned</h4><span>800 pts</span></li>
+                </ul>
+              </div>
+              <div class="item">
+                <ul>
+                  <li><img src="{{ url_for('static', filename='assets/images/game-02.jpg') }}" alt="" class="templatemo-item"></li>
+                  <li><h4>Save the Dolphins</h4><span>...</span></li>
+                  <li><h4>Date Added</h4><span>24/08/2036</span></li>
+                  <li><h4>Total Contributed</h4><span>200 XRP</span></li>
+                  <li><h4>Points Earned</h4><span>200 pts</span></li>
+                </ul>
+              </div>
+              <div class="item last-item">
+                <ul>
+                  <li><img src="{{ url_for('static', filename='assets/images/game-03.jpg') }}" alt="" class="templatemo-item"></li>
+                  <li><h4>Save the Beaches</h4><span>...</span></li>
+                  <li><h4>Date Added</h4><span>24/08/2036</span></li>
+                  <li><h4>Total Contributed</h4><span>50 XRP</span></li>
+                  <li><h4>Points Earned</h4><span>50 pts</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <!-- ***** Gaming Library End ***** -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p>Copyright © 2036 <a href="#">Cyborg Gaming</a> Company. All rights reserved. 
+          
+          <br>Design: <a href="https://templatemo.com" target="_blank" title="free CSS templates">TemplateMo</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='assets/js/owl-carousel.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/tabs.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/popup.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/custom.js') }}"></script>
+
+  </body>
+
+</html>

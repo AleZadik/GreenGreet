@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>GreenGreet | Connect Wallet</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="static/assets/css/fontawesome.css">
+    <link rel="stylesheet" href="static/assets/css/templatemo-cyborg-gaming.css">
+    <link rel="stylesheet" href="static/assets/css/owl.css">
+    <link rel="stylesheet" href="static/assets/css/animate.css">
+    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+
+    <style>
+        .acc-inputs{
+          width: 100%;
+          background-color: transparent;
+          border: none;
+          border-bottom: 1px solid #fff;
+          color: #fff;
+          font-size: 1.2rem;
+          padding: 0.5rem;
+          margin-bottom: 1rem;
+        }
+        .acc-inputs:focus{
+          outline: none;
+        }
+        label{
+          color: #fff;
+          font-size: 1.2rem;
+          font-weight: bold;
+          padding: 0.5rem;
+        }
+        #submit{
+          width: 100%;
+          background-color: #fff;
+          color: #000;
+          border: 3px solid #fff;
+          font-size: 1.2rem;
+          padding: 0.5rem;
+          margin-bottom: 1rem;
+          margin-top: 0.5rem;
+        }
+        #submit:hover{
+          background-color: rgb(255, 255, 255, 0.1);
+          color: rgb(255, 255, 255);
+          border: 3px solid #000;
+        }
+      </style>
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="/" class="logo">
+                        <img src="static/assets/images/logo.png" alt="">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Search End ***** -->
+                    <div class="search-input">
+                      <form id="search" action="#">
+                        <input type="text" placeholder="Type Something" id='searchText' name="searchKeyword" onkeypress="handle" />
+                        <i class="fa fa-search"></i>
+                      </form>
+                    </div>
+                    <!-- ***** Search End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                      <li><a href="/">Browse</a></li>
+                      <li><a href="/mint">Mint</a></li>
+                      <li><a href="/connect" class="active">Change Wallet</a></li>
+                      <li><a href="/profile/{{account}}">{{account[:10] + '...'}}<img src="{{ url_for('static', filename='assets/images/profile-header.jpg') }}" alt=""></a></li>
+                    </ul>    
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content">
+          
+          <!-- ***** Most Popular Start ***** -->
+          <h1>Connect your NFT-Devnet Wallet</h1>
+          <a style="text-decoration: underline !important;" href="https://xrpl.org/xrp-testnet-faucet.html" target="_blank">Click here for: XRPL Faucet</a>
+          <div class="most-popular">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="heading-section">
+                  <h4><em>Account</em> Link</h4>
+                  <!-- Button to generate account -->
+                    <!-- <button id="generate" style="visibility: hidden;" class="btn btn-primary">Generate New Account</button>
+                    <hr> -->
+                </div>
+                <div class="row">
+                    <label for="acc">Account Address:</label>
+                    <input class="acc-inputs" type="text" name="acc" id="acc">
+                    <label for="secret">Account Secret:</label>
+                    <input class="acc-inputs" type="text" name="secret" id="secret">
+                    <label for="sequence">Account Sequence:</label>
+                    <input class="acc-inputs" type="text" name="sequence" id="sequence">
+                  </div>
+                    <!-- <button id="submit">Submit</button> -->
+                  <div class="col-lg-12">
+                    <div class="main-button">
+                      <a id="submit">Submit</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ***** Most Popular End ***** -->
+
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p>Copyright © 2036 <a href="#">Cyborg Gaming</a> Company. All rights reserved. 
+          
+          <br>Design: <a href="https://templatemo.com" target="_blank" title="free CSS templates">TemplateMo</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="static/vendor/jquery/jquery.min.js"></script>
+  <script src="static/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+  <script src="static/assets/js/owl-carousel.js"></script>
+  <script src="staticassets/js/tabs.js"></script>
+  <script src="static/assets/js/popup.js"></script>
+  <script src="static/assets/js/custom.js"></script>
+
+  <script>
+    // When button generate is clicked, send a request to /generate-account and disable all inputs and get the returned account from the api
+    $('#generate').click(function(){
+      $.ajax({
+        url: '/generate-account',
+        type: 'GET',
+        success: function(data){
+          $('#acc').val(data.acc);
+          $('#secret').val(data.secret);
+          $('#sequence').val(data.sequence);
+          $('#acc').prop('disabled', true);
+          $('#secret').prop('disabled', true);
+          $('#sequence').prop('disabled', true);
+        }
+      });
+    });
+
+    // When button submit is clicked, check if all fields are filled and save it on cookies
+    // then redirects to '/'
+    $('#submit').click(function(){
+      if($('#acc').val() == '' || $('#secret').val() == '' || $('#sequence').val() == ''){
+        alert('Please fill all fields');
+      }else{
+        document.cookie = "acc=" + $('#acc').val();
+        document.cookie = "secret=" + $('#secret').val();
+        document.cookie = "sequence=" + $('#sequence').val();
+        window.location.href = '/';
+      }
+    });
+  </script>
+  </body>
+
+</html>

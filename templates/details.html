@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>GreenGreet | NFT details</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+
+
+    <!-- Additional CSS Files -->
+    <link href="{{ url_for('static', filename='assets/css/fontawesome.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/css/templatemo-cyborg-gaming.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/css/owl.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/css/animate.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/css/owl.css') }}" rel="stylesheet">
+    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    <script src='https://unpkg.com/xrpl@2.1.0-beta.1'></script>
+    <script>
+        if (typeof module !== "undefined") var xrpl = require('xrpl')
+        var nft_holder;
+        async function createEscrowTransaction(amt){
+            const secret = localStorage.getItem('secret');
+            const sequence = localStorage.getItem('sequence');
+            const destination_add = nft_holder;
+            // make post request to /createescrow
+            xhr = new XMLHttpRequest();
+            xhr.open('POST', '/createescrow');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({
+                secret: secret,
+                sequence: sequence,
+                address: destination_add,
+                amount: amt
+            }));
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    console.log(xhr.responseText);
+                    const response = JSON.parse(xhr.responseText);
+                    console.log(response);
+                    alert("Escrow transaction created successfully. Refreshing page...");
+                    window.location.reload();
+                }
+                else {
+                    console.log('Request failed.  Returned status of ' + xhr.status);
+                }
+            };
+        }
+
+        async function getTokens() {
+            // Logged user wallet.
+            const wallet = xrpl.Wallet.fromSeed(localStorage.getItem('secret'))
+            const client = new xrpl.Client("wss://xls20-sandbox.rippletest.net:51233")
+            await client.connect()
+            nft_holder = "{{ nft_owner_address | safe }}";
+            console.log("Connected to Sandbox")
+            const nfts = await client.request({
+                method: "account_nfts",
+                account: nft_holder
+            })
+
+            console.log(nfts)
+            let idap = 0;
+            nfts.result.account_nfts.forEach(nft => {
+                const nftURI = xrpl.convertHexToString(nft.URI);
+                if(nftURI == "{{ ipfs_minted_url | safe }}"){
+                    console.log("Found the NFT", nft);
+                    getNftData(nftURI, wallet);
+                    $('#explorer-link').attr('href', 'https://nft-devnet.xrpl.org/accounts/' + wallet.classicAddress);
+                }
+            })
+            client.disconnect()
+        }
+
+        async function getNftData(URI, wallet) {
+            const xhr = new XMLHttpRequest()
+            xhr.open("POST", "/getnftdata")
+            xhr.setRequestHeader("Content-Type", "application/json")
+            // added URI as form data
+            xhr.send(JSON.stringify({URI: URI}))
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    console.log(xhr.responseText);
+                    const response = JSON.parse(xhr.responseText);
+                    // Now get the fields from the response and populate the project elements
+                    $("#project-title").text(response.name);
+                    $("#project-description").text(response.projectDescription);
+                    $("#project-image-1").attr("src", response.image);
+                    $("#project-summary").text(response.summary);
+                    $("#project-funding").text(response.fundAmount);
+                    getEscrowData(wallet, response);
+                    $('.container').css('display', 'block');
+
+                } else {
+                    console.log("Error: " + xhr.status)
+                }
+            }
+        }
+
+        async function getEscrowData(wallet, nft_fields){
+            const xhr = new XMLHttpRequest()
+            xhr.open("POST", "/getescrowdata")
+            xhr.setRequestHeader("Content-Type", "application/json")
+            xhr.send(JSON.stringify({address: "{{ nft_owner_address | safe }}"}))
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    console.log(xhr.responseText);
+                    const response = JSON.parse(xhr.responseText);
+                    if(response.result.account_objects.length == 0){
+                      console.log("No escrow found");
+                      $('#donation-1').css('display', 'none');
+                    }
+                    else{
+                      // sort the escrow objects by descending amount
+                      sorted_escrow_donations = response.result.account_objects.sort(function(a, b) {
+                          return b.amount - a.amount;
+                      });
+                      console.log(sorted_escrow_donations);
+                      // For each escrow donation, get the account and amount and add it to the donation list
+                      let c = 1;
+                      let copiedElement = undefined;
+                      let totalRaised = 0;
+                      let avatar_options = ['game-01.jpg', 'game-02.jpg', 'game-03.jpg']
+                      sorted_escrow_donations.forEach(function(escrow_donation){
+                          const escrow_donation_account = escrow_donation.Account.substring(0, 10) + "...";
+                          const escrow_donation_amount = escrow_donation.Amount;
+                          const drops_to_xrp = xrpl.dropsToXrp(parseInt(escrow_donation_amount));
+                          const avatar_option = avatar_options[Math.floor(Math.random() * avatar_options.length)];
+                          totalRaised += parseInt(drops_to_xrp);
+                          if(c == 1){
+                            // get a random avatar_option
+                            $("#donation-1 .avatar").attr("src", "/static/assets/images/" + avatar_option);
+                            $("#donation-1 .donation-position").text("1st");
+                            $("#donation-1 .donation-sender").text(escrow_donation_account);
+                            $('#donation-1 .donation-sender').attr('href', '/profile/' + escrow_donation.Account);
+                            $('#donation-1 .donation-pts_earned').text(drops_to_xrp + "pts");
+                            $('#donation-1 .donation-amt_donated').text(drops_to_xrp + " XRP");
+                            // make a copy to use for the next 'n' donations
+                            copiedElement = $('#donation-1').clone();
+                            $('#donation-1').css('display', 'block');
+                            c += 1;
+                          }
+                          else{
+                            // Clone the previous donation element and add it to the list
+                            const newElement = copiedElement.clone();
+                            newElement.find('.avatar').attr("src", "/static/assets/images/" + avatar_option);
+                            newElement.find('.donation-position').text(c + "th");
+                            newElement.find('.donation-sender').text(escrow_donation_account);
+                            newElement.find('.donation-sender').attr('href', '/profile/' + escrow_donation.Account);
+                            newElement.find('.donation-pts_earned').text(drops_to_xrp + "pts");
+                            newElement.find('.donation-amt_donated').text(drops_to_xrp + " XRP");
+                            newElement.appendTo('.donation-list');
+                            // set display to block
+                            newElement.css('display', 'block');
+                            c += 1;
+                          }
+                      });
+                      // Add the total raised to the page Parse.Int(totalRaised)
+                      let fundPercentage = Math.round(totalRaised / parseInt(nft_fields.fundAmount)* 100, 1);
+                      let nftPrice =  parseInt(nft_fields.fundAmount) - totalRaised;
+                      console.log(parseInt(nft_fields.fundAmount));
+                      console.log(parseInt(totalRaised));
+                      $("#progress-bar").css("width", fundPercentage + "%");
+                      $("#progress-bar-text").text(fundPercentage + "%");
+                      $("#buy-button").text("Create Offer (" + nftPrice + " XRP)");
+                      $("#progress-bar-text-2").text(totalRaised + " XRP raised of " + nft_fields.fundAmount);
+
+                    }
+                    // Now get the fields from the response and populate the project elements
+                    // <img src="{{ url_for('static', filename='assets/images/game-01.jpg') }}" alt="" class="templatemo-item">
+                    //   <h4 id="position">1st</h4>
+                    //   <h6 id="sender"> rJFGT7VuDo... </h6>
+                    //   <span><i class="fa fa-leaf" style="color: green;"></i> <span id ='pts_earned'>120pts</span></span>
+                    //   <span><i class="fa fa-dollar" style="color: #33cb9a;"></i> <span id="amt_donated">120 XRP</span></span>
+                }
+            }
+          }
+    </script>
+    <style>
+      .underline-words{
+        color: #fff;
+        font-style: normal;
+        text-decoration: underline;
+      }
+      .project-info-text{
+        margin-top: 20px;
+        white-space: pre-wrap;
+      }
+      .section{
+        margin-bottom: 30px;
+        margin-top: 10px;
+      }
+
+      .top-donor-list{
+        overflow: auto;
+        max-height: 300px;
+      }
+
+      .amtlabel{
+        font-size: 20px;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 5px;
+      }
+
+      .progress-bar{
+        background-color: #00a8ff;
+        height: 100px;
+        width: 0%;
+      }
+      .progress-bar-text{
+        font-size: 12px;
+        color: #33cb9a;
+      }
+
+      .donors{
+        max-height: 100%;
+      }
+
+      #project-image-1{
+        height: 300px;
+        width: auto;
+        max-width: 100%;
+        margin-top: 10px;
+      }
+
+      .project-image{
+        /* Center */
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        /* width */
+        width: 100%;
+        align-items: center;
+      }
+
+      .container{
+        /* Make container hidden */
+        display: none;
+      }
+
+      #explorer-link{
+        text-decoration: underline !important;
+        color: #fff;
+        font-style: italic;
+      }
+
+      .project-about{
+        white-space: pre-wrap;
+      }
+
+    </style>
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="/" class="logo">
+                        <img src="{{ url_for('static', filename='assets/images/logo.png') }}">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Search End ***** -->
+                    <div class="search-input">
+                      <form id="search" action="#">
+                        <input type="text" placeholder="Type Something" id='searchText' name="searchKeyword" onkeypress="handle" />
+                        <i class="fa fa-search"></i>
+                      </form>
+                    </div>
+                    <!-- ***** Search End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                      <li><a href="/">Browse</a></li>
+                      <li><a href="/mint">Mint</a></li>
+                      <li><a href="/connect">Change Wallet</a></li>
+                      <li><a href="/profile/{{account}}">{{account[:10] + '...'}}<img src="{{ url_for('static', filename='assets/images/profile-header.jpg') }}" alt=""></a></li>
+                    </ul>     
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content">
+
+          <!-- ***** Featured Games Start ***** -->
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="featured-games header-text">
+                <div class="heading-section">
+                  <h4 id="project-title">||||||||||||||||||</h4>
+                </div>
+                <div class='section project-summary'>
+                  <h3 class="underline-words">Summary</h3>
+                  <p class='project-info-text' id="project-summary">Helping Kids with XYZ</p>
+                </div>
+                <div class='section project-description'>
+                  <h3 class="underline-words">Description</h3>
+                  <p class="project-info-text" id="project-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </div>
+                <div class='section project-funding'>
+                  <h3 class="underline-words">Funding Goal</h3>
+                  <p class="project-info-text" id="project-funding">$$$$</p>
+                </div>
+                <div class='section project-about'>
+                  <h3 class="underline-words">About Me</h3>
+                  <p class="project-info-text" id="project-about">I'm psppspspspsppspsp</p>
+                </div>
+                <div class='section project-image'>
+                  <h3 class="underline-words">Pictures</h3>
+                  <img id='project-image-1' src="{{ url_for('static', filename='assets/images/details-01.jpg') }}" alt="" style="border-radius: 23px; margin-bottom: 30px;">
+                </div>
+                <a id="explorer-link" style="color: #fff;" target="_blank">Click here to check the Ledger</a>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="donors top-downloaded">
+                <div class="heading-section">
+                  <h4><em>Buy</em> NFT </h4>
+                  <button id='buy-button' onclick="offerCreate()">Create Offer (1000 XRP)</button>
+                </div>
+                <hr>
+                <div class="heading-section">
+                  <h4><em>Funding</em> Goal</h4>
+                  <div class="progress">
+                    <div id='progress-bar' class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:70%">
+                    </div>
+                  </div>
+                  <span id='progress-bar-text' class="progress-bar-text">700/1000 (XRP)</span>
+                  <br>
+                  <span id="progress-bar-text-2" class="progress-bar-text"></span>
+                </div>
+                <hr>
+                <div class="heading-section">
+                  <h4><em>Support</em> Now</h4>
+                  <label for="amount" class="amtlabel">Amount (XRP)</label>
+                  <input type="amount" name="amount" id="amount" placeholder="0000">
+                  <button onclick="startEscrow()">Support</button>
+                </div>
+                <hr>
+                <div class="heading-section">
+                  <h4><em>Top</em> Donors</h4>
+                </div>
+                <div class="top-donor-list">
+                  <ul class='donation-list'>
+                    <li id="donation-1">
+                      <img src="{{ url_for('static', filename='assets/images/game-01.jpg') }}" alt="" class="avatar templatemo-item">
+                      <h4 class="donation-position">1st</h4>
+                      <h6><a class="donation-sender" href="#"> rJFGT7VuDo... </a></h6>
+                      <span><i class="fa fa-leaf" style="color: green;"></i> <span class="donation-pts_earned">120pts</span></span>
+                      <span><i class="fa fa-dollar" style="color: #33cb9a;"></i> <span class="donation-amt_donated">120 XRP</span></span>
+                    </li>
+                    <!-- <li>
+                      <img src="{{ url_for('static', filename='assets/images/game-02.jpg') }}" alt="" class="templatemo-item">
+                      <h4>Zuba</h4>
+                      <h6>rJFGT7VuDo...</h6>
+                      <span><i class="fa fa-leaf" style="color: green;"></i> 80pts</span>
+                      <span><i class="fa fa-dollar" style="color: #33cb9a;"></i> 80 XRP</span>
+                    </li>
+                    <li>
+                      <img src="{{ url_for('static', filename='assets/images/game-03.jpg') }}" alt="" class="templatemo-item">
+                      <h4>MK</h4>
+                      <h6>rJFGT7VuDo...</h6>
+                      <span><i class="fa fa-leaf" style="color: green;"></i> 40pts</span>
+                      <span><i class="fa fa-dollar" style="color: #33cb9a;"></i> 80 XRP</span>
+                    </li> -->
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ***** Featured Games End ***** -->
+
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p>Copyright © 2022 <a href="#"> Green Project </a> MIT LICENSE. 
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='assets/js/owl-carousel.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/tabs.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/popup.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/custom.js') }}"></script>
+
+  <script>
+    function offerCreate(){
+      // Confirm if user wants to create an offer
+      var r = confirm("Are you sure you want to create an offer for this NFT?");
+      if (r == true) {
+        // Redirect to offer creation page
+        alert("Offer Created!")
+      }
+    }
+
+    // Call function getTokens() when page is loaded
+    $(document).ready(function(){
+      getTokens();
+      // make class container visible again
+    });
+
+    function startEscrow(){
+      // Confirm if user wants to start escrow
+      let amt_xrp = $('#amount').val();
+      var r = confirm("Are you sure you want to send " + amt_xrp + " XRP to the escrow?");
+      if (r == true) {
+        // Redirect to escrow page
+        alert("Escrow Started!");
+        createEscrowTransaction(amt_xrp);
+        // send
+      }
+    }
+  </script>
+
+
+  </body>
+
+</html>
