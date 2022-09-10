@@ -15,30 +15,8 @@ import pymongo
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
-mongo_pass = os.getenv('MONGO_PASS')
-
-client = xrpl.clients.JsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
-db_client = pymongo.MongoClient(f"mongodb+srv://Hathi:{mongo_pass}@greengreet.glrfw2v.mongodb.net/?retryWrites=true&w=majority")
-
-# Only used to keep track of addresses that interacted with GreenGreet
-def add_address_to_db(address):
-    db = db_client["greengreet"]
-    collection = db["accounts"]
-    if not collection.find_one({"address": address}):
-        return False
-    collection.insert_one({"address": address})
-    return True
-
-def get_all_addresses():
-    db = db_client["greengreet"]
-    collection = db["accounts"]
-    all_addresses = collection.find({})
-    all_addresses = [x['address'] for x in all_addresses]
-    print("DB returned these addresses: ", all_addresses)
-    return all_addresses
+MONGO_PASS = os.getenv('MONGO_PASS')
+NFT_STORAGE_KEY = os.environ.get('NFT_STORAGE_KEY', None)
 
 source = {
     "address": "rBpMysH9bin2mjJ3ojnZ45D7sWPZTtcEru",
@@ -57,37 +35,79 @@ oracle = {
     "sequence": 5138209
 }
 
+app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+client = xrpl.clients.JsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
+db_client = pymongo.MongoClient(f"mongodb+srv://Hathi:{MONGO_PASS}@greengreet.glrfw2v.mongodb.net/?retryWrites=true&w=majority")
+
+def add_address_to_db(address):
+    '''
+    Adds address to database if it doesn't already exist
+        + input: address (str)
+        + output: boolean (True if added, False if not)
+    '''
+    db = db_client["greengreet"]
+    collection = db["accounts"]
+    if not collection.find_one({"address": address}):
+        return False
+    collection.insert_one({"address": address})
+    return True
+
+def get_all_addresses():
+    '''
+    Gets all addresses from database
+        + input: None
+        + output: list of addresses (list(str))
+    '''
+    db = db_client["greengreet"]
+    collection = db["accounts"]
+    all_addresses = collection.find({})
+    all_addresses = [x['address'] for x in all_addresses]
+    return all_addresses
+
 def get_nfts_in_acc(acc):
+    '''
+    Gets all NFTs in an account
+        + input: acc address (str)
+        + output: request result of NFTs (list(dict))
+    '''
     acc_nfts_req = xrpl.models.requests.AccountNFTs(
         account=acc,
     )
     acct_nfts = client.request(acc_nfts_req).result
-    print("Got these nfts: ", acct_nfts)
     return acct_nfts
 
 def get_ipfs_meta(url):
+    '''
+    Gets project data from IPFS
+        + input: url (str)
+        + output: project data (dict)
+    '''
     response = requests.get(url)
     return response.json()
 
 def only_green_nfts(curr_acc_nfts, acc):
+    '''
+    Get only the green NFTs from the list of account NFTs
+        + input: curr_acc_nfts (list(dict)), acc (str)
+        + output: green_nfts (list(dict))
+    '''
     required_dict_fields = ['name', 'summary', 'projectDescription', 'about', 'fundAmount', 'image']
     all_projects = []
-    print(curr_acc_nfts)
     for nft in curr_acc_nfts:
-        print(nft)
         if not nft.get('URI'):
-            continue # not a GreenGreet NFT
+            continue
         else:
             uri = xrpl.utils.hex_to_str(nft.get('URI'))
-            print("uri: ", uri)
             if not uri.startswith('ipfs://') or not uri.endswith('.json'):
-                continue # not a GreenGreet NFT
+                continue
             else:
                 uri = uri.replace('ipfs://', 'https://ipfs.io/ipfs/')
                 project_data = get_ipfs_meta(uri)
-                print(project_data)
                 if not all(elem in project_data for elem in required_dict_fields):
-                    continue # not a GreenGreet NFT
+                    continue
                 else:
                     temp_project = {
                         "title": project_data['name'],
@@ -95,12 +115,18 @@ def only_green_nfts(curr_acc_nfts, acc):
                         "img": project_data['image'].replace('ipfs://', 'https://ipfs.io/ipfs/'),
                         "goal": project_data['fundAmount'],
                         "raised": random.randint(0, int(project_data['fundAmount'])),
-                        "uri": nft.get('URI') # Used for API later
+                        "uri": nft.get('URI'),
+                        "about": project_data['about'],
                     }
                     all_projects.append(temp_project)
     return all_projects
 
 def get_all_projects():
+    '''
+    Gets all projects signed up for funding in GreenGreet
+        + input: None
+        + output: all_projects (list(dict))
+    '''
     required_dict_fields = ['name', 'summary', 'projectDescription', 'about', 'fundAmount', 'image']
     all_accs = get_all_addresses()
     all_projects = []
@@ -111,13 +137,20 @@ def get_all_projects():
     return all_projects
 
 def generate_nft_account():
-    print("Attempting to generate NFT account")
+    '''
+    Generates a new account for an NFT
+        + input: None
+        + output: list(address, seed, sequence)
+    '''
     nft_account = xrpl.wallet.generate_faucet_wallet(client=client)
-    print(nft_account)
     return [nft_account.classic_address, nft_account.seed, nft_account.sequence]
 
-# Looks up all pending Escrow inside `destination` account
 def lookup_escrow(acc_add):
+    '''
+    Gets all pending escrows for an account
+        + input: acc_add (str)
+        + output: escrows (list(dict))
+    '''
     acc_obj = xrpl.models.requests.AccountObjects(
         account=str(acc_add),
         type="escrow",
@@ -125,7 +158,6 @@ def lookup_escrow(acc_add):
     )
     try:
         acc_obj_resp = client.request(acc_obj)
-        print(acc_obj_resp)
         return acc_obj_resp
     except Exception as e:
         print(e)
@@ -134,7 +166,11 @@ def lookup_escrow(acc_add):
 def finish_escrow(conditionID="A0258020AE754FFD727D78F6B7314E729028103A0B202EAD12502BF8468582B0D3BA1D70810120", 
                     fulfillment="A0228020383017C58C9F43BC4D7D9200FAF41944EAD92DA1A30E7C3E2178929C960BA68D",
                     offer_sequence=30687544):
-    
+    '''
+    Fulfills an escrow transaction to grant funds to the project
+        + input: conditionID (str), fulfillment (str), offer_sequence (int)
+        + output: escrow_finish (dict), oracle_acc (XRPL Wallet)
+    '''
     oracle_acc = Wallet(seed=oracle['secret'], sequence=oracle['sequence'])
 
     escrow_finish = EscrowFinish(
@@ -151,11 +187,16 @@ def create_escrow(condition = "A0258020AE754FFD727D78F6B7314E729028103A0B202EAD1
                 from_acc_wallet = Wallet(seed=source['secret'], sequence=source['sequence']),
                 to_add = "rG56XxHfdjjqvCsRNoYdVjMpJLAmJumsDJ",
                 amount=10):
-    secret = os.urandom(32)
-    #fulfillment = PreimageSha256(preimage=secret)
+    '''
+    Creates a conditional escrow transaction to hold funds for a project
+        + input: condition (str), fulfillment (str), from_acc_wallet (XRPL Wallet), to_add (str), amount (int)
+        + output: escrow_create (XRPL EscrowCreate), from_acc (str), condition (str), fulfillment (str)
+    '''
+    # secret = os.urandom(32)
+    # #fulfillment = PreimageSha256(preimage=secret)
     rippleOffset = 946684800
-    cancelAfter = int(datetime.datetime.now().timestamp()) + (24*60*60) - rippleOffset
-    print(cancelAfter)
+    cancelAfter = int(datetime.datetime.now().timestamp()) + (30*24*60*60) - rippleOffset
+
     # Create a Escrow Create transaction
     from_acc = from_acc_wallet
     escrow_create = EscrowCreate(
@@ -169,35 +210,27 @@ def create_escrow(condition = "A0258020AE754FFD727D78F6B7314E729028103A0B202EAD1
     return escrow_create, from_acc, condition, fulfillment
 
 def sign_and_submit(tx, from_acc):
-    # Sign the transaction
+    '''
+    Signs and submits a transaction to the XRPL
+        + input: tx (Transaction object), from_acc (XRPL Wallet)
+        + output: tx_response (dict)
+    '''
     signed_tx = xrpl.transaction.safe_sign_and_autofill_transaction(tx, from_acc, client)
     max_ledger = signed_tx.last_ledger_sequence
     tx_id = signed_tx.get_hash()
-    print("Signed transaction:", signed_tx)
-    print("Transaction cost:", xrpl.utils.drops_to_xrp(signed_tx.fee), "XRP")
-    print("Transaction expires after ledger:", max_ledger)
-    print("Identifying hash:", tx_id)
     try:
         tx_response = xrpl.transaction.send_reliable_submission(signed_tx, client)
     except xrpl.transaction.XRPLReliableSubmissionException as e:
         exit(f"Submit failed: {e}")
-    import json
-    print(json.dumps(tx_response.result, indent=4, sort_keys=True))
-    print(f"Explorer link: https://nft-devnet.xrpl.org/transactions/{tx_id}")
-    metadata = tx_response.result.get("meta", {})
-    sequence = tx_response.result.get("Sequence", None)
-    if metadata.get("TransactionResult"):
-        print("Result code:", metadata["TransactionResult"])
-    if metadata.get("delivered_amount"):
-        print("XRP delivered:", xrpl.utils.drops_to_xrp(
-                    metadata["delivered_amount"]))
-
     return tx_response.result
 
-def nft_storage_upload(file_from_form, file_name, file_type, raw, projectData):
-    nft_storage_key = os.environ.get('NFT_STORAGE_KEY', None)
-
-    if not nft_storage_key:
+def nft_storage_upload(file_from_form, file_name, file_type, projectData):
+    '''
+    Uploads an NFT to the NFT Storage API
+        + input: file_from_form (file.read()), file_name (str), file_type (str), projectData (dict)
+        + output: nft_uri (str)
+    '''
+    if not NFT_STORAGE_KEY:
         raise Exception("NFT_STORAGE_KEY is not set")
     else:
         url = "https://api.nft.storage/store"
@@ -206,11 +239,10 @@ def nft_storage_upload(file_from_form, file_name, file_type, raw, projectData):
 
         headers = {
             'accept': 'application/json',
-            'Authorization': 'Bearer {}'.format(nft_storage_key)
+            'Authorization': 'Bearer {}'.format(NFT_STORAGE_KEY)
         }
 
         response = requests.request("POST", url, headers=headers, data=payload, files=files).json()
-        print(response)
         if response.get('ok'):
             return response.get('value').get('url')
         else:
@@ -247,38 +279,18 @@ def lookup():
             return jsonify({'error': str(e)}), 500
     return 'ok'
 
-@app.route('/test')
-def test():
-    # Save the data from create_escrow() to variables
-    escrow_create, from_acc, conditionID, fulfillment = create_escrow()
-    # Save conditionID and fulfillment to cookies
-    escrow_seq = sign_and_submit(escrow_create, from_acc)
-    response = make_response(render_template('escrow.html', conditionID=conditionID, fulfillment=fulfillment, escrow_seq=escrow_seq))
-    response.set_cookie('conditionID', str(conditionID))
-    response.set_cookie('fulfillment', str(fulfillment))
-    response.set_cookie('escrow_seq', str(escrow_seq))
-    return response
-
 @app.route('/createescrow', methods=['POST'])
 def create():
-    # Destination address
     to_acc = request.get_json().get('address')
-
-    # >> Sender Info
     from_acc_wallet = Wallet(seed=request.get_json().get('secret'), sequence=request.get_json().get('sequence'))
     amt = request.get_json().get('amount')
-    # <<
     escrow_create, from_acc, condition, fulfillment = create_escrow(from_acc_wallet=from_acc_wallet, to_add=to_acc, amount=int(amt))
     tx_result = sign_and_submit(escrow_create, from_acc)
-    # add from_acc_wallet.classic_address to the database
     add_address_to_db(from_acc_wallet.classic_address)
     return jsonify(tx_result), 200
     
-    
-    
 @app.route('/fulfillescrow', methods=['POST'])
 def fulfillescrow():
-    # Get the conditionID and fulfillment from cookies
     conditionID = request.cookies.get('conditionID')
     fulfillment = request.cookies.get('fulfillment')
     escrow_seq = int(request.cookies.get('escrow_seq'))
@@ -290,25 +302,20 @@ def fulfillescrow():
 def mint_token():
     fields = ['projectname', 'summary', 'pdesc', 'about', 'fundamount']
 
-    # get account cookies
-    # NOTE: this is not secure, but it's a proof of concept
+    # NOTE: PoC code only to get account & secret from cookies
     account = request.cookies.get('account')
     secret = request.cookies.get('secret')
 
     if not account or not secret:
-        pass
-        # return jsonify({'error': 'no account set'}), 401
+        return jsonify({'error': 'no account set'}), 401
 
-    # Check if all fields are present
     for field in fields:
         if field not in request.form or request.form[field] == '':
             return jsonify({'error': 'Missing field: {}'.format(field)}), 400
     
-    # Check if there's at least a file
     if len(request.files) == 0:
         return jsonify({'error': 'Missing file'}), 400
 
-    
     meta_obj = {
         'name': request.form.get('projectname'),
         'summary': request.form.get('summary'),
@@ -317,13 +324,13 @@ def mint_token():
         'fundAmount': request.form.get('fundamount'),
         'image': 'undefined',
     }
-
     file_from_form = request.files['files[]']
 
     try:
-        ipfs_metadata_url = nft_storage_upload(file_from_form.read(), file_from_form.filename, file_from_form.content_type, file_from_form, meta_obj)
+        ipfs_metadata_url = nft_storage_upload(file_from_form.read(), file_from_form.filename, file_from_form.content_type, meta_obj)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
     add_address_to_db(account)
     return jsonify({'url': ipfs_metadata_url}), 200
 
@@ -333,23 +340,18 @@ def minted_nft(account):
 
 @app.route('/getnftdata', methods=['POST'])
 def getnftdata():
-    # get URI from body
     URI = request.get_json().get('URI')
     if not URI:
         return jsonify({'error': 'Missing URI'}), 400
     else:
-        # remove ipfs:// prefix
         URI = URI.replace('ipfs://', '')
-        # get metadata from IPFS
         try:
             metadata = requests.get('https://ipfs.io/ipfs/{}'.format(URI)).json()
             metadata['image'] = 'https://ipfs.io/ipfs/{}'.format(metadata.get('image').replace('ipfs://', ''))
-            print("python is sending: ", metadata)
             return jsonify(metadata), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-# list-nfts
 @app.route('/list-nfts')
 def list_nfts():
     all_projects = get_all_projects()
@@ -367,13 +369,8 @@ def mint():
         return render_template('mint.html', account=request.cookies.get('acc'))
     return redirect("/")
 
-@app.route('/escrow')
-def escrow():
-    return render_template('escrow.html')
-
 @app.route('/profile/<account>')
 def profile(account):
-    # get the account's NFTs
     acc_nfts = get_nfts_in_acc(account).get("account_nfts")
     green_nfts = only_green_nfts(acc_nfts, account)
     return render_template('profile.html', account=account, nfts=green_nfts)
