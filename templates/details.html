@@ -94,6 +94,7 @@
                     $("#project-image-1").attr("src", response.image);
                     $("#project-summary").text(response.summary);
                     $("#project-funding").text(response.fundAmount);
+                    $("#project-about").text(response.about);
                     getEscrowData(wallet, response);
                     $('.container').css('display', 'block');
 
