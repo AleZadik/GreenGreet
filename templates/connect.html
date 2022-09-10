@@ -200,6 +200,10 @@
         document.cookie = "acc=" + $('#acc').val();
         document.cookie = "secret=" + $('#secret').val();
         document.cookie = "sequence=" + $('#sequence').val();
+        // Save it on local storage
+        localStorage.setItem('acc', $('#acc').val());
+        localStorage.setItem('secret', $('#secret').val());
+        localStorage.setItem('sequence', $('#sequence').val());
         window.location.href = '/';
       }
     });
