@@ -6,7 +6,7 @@
 ## Live Demo:
 
 ```text
-todo
+https://greengreet.herokuapp.com/
 ```
 
 ## Getting Started
@@ -19,12 +19,17 @@ First clone the GitHub repository with:
 
 * git
   ```sh
-  git clone https://github.com/AleZadik/todo
+  https://github.com/AleZadik/GreenGreet.git
   ```
   
 * NFT.storage
   ```text
   Get an API key from https://nft.storage/
+  ```
+  
+* MongoDB (Only for storing address)
+  ```text
+  Get an API key from https://www.mongodb.com/
   ```
 
 ### Installation
@@ -33,7 +38,8 @@ _Below is an example of how to install and run the application._
 
 1. Create an `.env` file and add the sample keys located in the `.local.env` file inside a `.env` file.
    ```text
-     NFT_STORAGE_KEY=<YOUR_NFT_STORAGE_KEY>
+      NFT_STORAGE_KEY=<YOUR_NFT_STORAGE_KEY>
+      MONGO_PASS=<YOUR_MONGO_PASS>
    ```
 3. Install dependecies
    ```sh
