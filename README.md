@@ -19,12 +19,14 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-First clone the GitHub repository with:
+First Install Node:
 
 * Node.js version 12.22
   ```sh
   https://nodejs.org/en/download/
   ```
+
+Clone the GitHub repository with:
 
 * git
   ```sh
