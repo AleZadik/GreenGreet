@@ -1,0 +1,18 @@
+{
+    "title": "The Lord of the Rings: The Fellowship of the Ring",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "The name of the item"
+        },
+        "description": {
+            "type": "string",
+            "description": "The description of the item"
+        },
+        "image": {
+            "type": "string",
+            "description": "https://ipfs.io/ipfs/bafybeihwigjhjmbnpfxn43lfknbh3qmt4q2f6eatqr66eu4eyhaqvwqocq/Untitled%20design%20(6).png"
+        }
+    }
+}

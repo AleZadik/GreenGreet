@@ -1,0 +1,58 @@
+[
+  {
+    "name": "browse",
+    "path": "/browse",
+    "component": "C:\\\\Users\\\\wilkn\\\\Desktop\\\\NON HACKATHON PROJECTS\\\\XRP GRANTS\\\\GreenProject\\\\GreenGreet\\\\dapp-ui\\\\pages\\\\browse.vue",
+    "chunkName": "pages/browse",
+    "_name": "_17b5fbd3"
+  },
+  {
+    "name": "mint",
+    "path": "/mint",
+    "component": "C:\\\\Users\\\\wilkn\\\\Desktop\\\\NON HACKATHON PROJECTS\\\\XRP GRANTS\\\\GreenProject\\\\GreenGreet\\\\dapp-ui\\\\pages\\\\mint.vue",
+    "chunkName": "pages/mint",
+    "_name": "_ef45f42a"
+  },
+  {
+    "name": "nscene",
+    "path": "/nscene",
+    "component": "C:\\\\Users\\\\wilkn\\\\Desktop\\\\NON HACKATHON PROJECTS\\\\XRP GRANTS\\\\GreenProject\\\\GreenGreet\\\\dapp-ui\\\\pages\\\\nscene.js",
+    "chunkName": "pages/nscene",
+    "_name": "_6b5872f0"
+  },
+  {
+    "name": "ooga",
+    "path": "/ooga",
+    "component": "C:\\\\Users\\\\wilkn\\\\Desktop\\\\NON HACKATHON PROJECTS\\\\XRP GRANTS\\\\GreenProject\\\\GreenGreet\\\\dapp-ui\\\\pages\\\\ooga.js",
+    "chunkName": "pages/ooga",
+    "_name": "_046772ec"
+  },
+  {
+    "name": "profile",
+    "path": "/profile",
+    "component": "C:\\\\Users\\\\wilkn\\\\Desktop\\\\NON HACKATHON PROJECTS\\\\XRP GRANTS\\\\GreenProject\\\\GreenGreet\\\\dapp-ui\\\\pages\\\\profile.vue",
+    "chunkName": "pages/profile",
+    "_name": "_1b713e30"
+  },
+  {
+    "name": "project",
+    "path": "/project",
+    "component": "C:\\\\Users\\\\wilkn\\\\Desktop\\\\NON HACKATHON PROJECTS\\\\XRP GRANTS\\\\GreenProject\\\\GreenGreet\\\\dapp-ui\\\\pages\\\\project.vue",
+    "chunkName": "pages/project",
+    "_name": "_4e5670c0"
+  },
+  {
+    "name": "users",
+    "path": "/users",
+    "component": "C:\\\\Users\\\\wilkn\\\\Desktop\\\\NON HACKATHON PROJECTS\\\\XRP GRANTS\\\\GreenProject\\\\GreenGreet\\\\dapp-ui\\\\pages\\\\users.vue",
+    "chunkName": "pages/users",
+    "_name": "_585ccacf"
+  },
+  {
+    "name": "index",
+    "path": "/",
+    "component": "C:\\\\Users\\\\wilkn\\\\Desktop\\\\NON HACKATHON PROJECTS\\\\XRP GRANTS\\\\GreenProject\\\\GreenGreet\\\\dapp-ui\\\\pages\\\\index.vue",
+    "chunkName": "pages/index",
+    "_name": "_12f2f099"
+  }
+]
