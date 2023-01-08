@@ -3,11 +3,15 @@
 
 ## About The Project
 
-## Live Demo:
+Green Greet is a platform that encourages and supports sustainable initiatives and projects through the use of blockchain technology. The main function of the platform is to allow users to publish their projects as NFTs, which contain information about the project and the author's credibility. Other users can then contribute to these projects through Escrow payments, which are only released when the project is fully funded.
+
+## Live Demo*:
 
 ```text
-https://greengreet.herokuapp.com/
+https://greengreet.appspot.com/
 ```
+
+* Needs to use TronLink Chrome Extension to connect to the Nile testnet
 
 ## Getting Started
 
@@ -17,42 +21,37 @@ To get a local copy up and running follow these simple example steps.
 
 First clone the GitHub repository with:
 
+* Node.js version 12.22
+  ```sh
+  https://nodejs.org/en/download/
+  ```
+
 * git
   ```sh
   https://github.com/AleZadik/GreenGreet.git
-  ```
-  
-* NFT.storage
-  ```text
-  Get an API key from https://nft.storage/
-  ```
-  
-* MongoDB (Only for storing address)
-  ```text
-  Get an API key from https://www.mongodb.com/
   ```
 
 ### Installation
 
 _Below is an example of how to install and run the application._
 
-1. Create an `.env` file and add the sample keys located in the `.local.env` file inside a `.env` file.
-   ```text
-      NFT_STORAGE_KEY=<YOUR_NFT_STORAGE_KEY>
-      MONGO_PASS=<YOUR_MONGO_PASS>
-   ```
-3. Install dependecies
+1. Go inside `/dapp-ui` & Install dependencies
    ```sh
-   python3 -m pip install -r requirements.txt
+   npm install
    ```
-3. Run Flask Server
+2. Run Dev Server
    ```sh
-   python3 main.py
+   npm run dev
    ```
-4. Open Web Applicaiton
+3. Open Web Application
    ```text
-   Open your browser and access 127.0.0.1:8080
+   Open your browser and access 127.0.0.1:3000
    ```
+4. Install TronLINK Chrome Extension & Setup a Nile testnet account
+   ```text
+   https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec
+   ```
+5. Connect your wallet to Green Greet!
 
 ## License
 
